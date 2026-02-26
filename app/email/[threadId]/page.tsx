@@ -18,7 +18,7 @@ export default async function ThreadPage({
 
     const { data: thread } = await supabase
         .from('email_threads')
-        .select('id, subject')
+        .select('id, subject, user_email')
         .eq('id', threadId)
         .single();
 
@@ -70,6 +70,7 @@ export default async function ThreadPage({
                 threadId={threadId}
                 replyTo={firstInbound?.from_address ?? ''}
                 subject={`Re: ${thread.subject}`}
+                fromEmail={thread.user_email ?? undefined}
             />
         </main>
     );

@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function ReplyForm({ threadId, replyTo, subject, }: {
+export default function ReplyForm({ threadId, replyTo, subject, fromEmail, }: {
     threadId?: string;
     replyTo?: string;
     subject?: string;
+    fromEmail?: string;
 }) {
     const router = useRouter();
     const [to, setTo]       = useState(replyTo ?? '');
@@ -22,7 +23,7 @@ export default function ReplyForm({ threadId, replyTo, subject, }: {
         const res = await fetch('/api/emails/send', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ to, subject: subj, body, threadId }),
+            body:    JSON.stringify({ to, subject: subj, body, threadId, fromEmail }),
         });
 
         if (!res.ok) {

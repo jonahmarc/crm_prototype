@@ -6,24 +6,27 @@ import EmailImportForm from '@/components/EmailImportForm';
 
 export const dynamic = 'force-dynamic';
 
-export default async function InboxPage() {
+export default async function InboxPage({
+                                            searchParams,
+                                        }: {
+    searchParams: Promise<{ user?: string }>;
+}) {
+    // Next.js 16 requires awaiting searchParams — same pattern as awaiting params
+    const { user } = await searchParams;
+
+    // Fall back to PROTO_USER_EMAIL if no ?user= param is provided
+    const userEmail = user ?? process.env.PROTO_USER_EMAIL!;
+
     const supabase = createServerClient();
 
     const { data: threads } = await supabase
         .from('email_threads')
         .select(`
-      id,
-      subject,
-      last_message_at,
-      email_messages (
-        direction,
-        body_text,
-        from_address,
-        sent_at
-      )
+      id, subject, last_message_at,
+      email_messages ( id, direction, from_address, body_text, raw_date, sent_at )
     `)
-        .order('last_message_at', { ascending: false })
-        .limit(50);
+        .eq('user_email', userEmail)
+        .order('last_message_at', { ascending: false });
 
     return (
         <main className="max-w-3xl mx-auto px-4 py-8">

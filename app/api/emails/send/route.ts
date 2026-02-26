@@ -5,7 +5,8 @@ import { createServerClient } from '@/lib/supabase-server';
 import { NextRequest } from 'next/server';
 
 export async function POST(req: NextRequest) {
-    const { to, subject, body, threadId } = await req.json();
+    const { to, subject, body, threadId, fromEmail } = await req.json()
+    const senderEmail = fromEmail ?? process.env.PROTO_USER_EMAIL;
 
     if (!to || !subject || !body) {
         return Response.json({ error: 'to, subject, and body are required' }, { status: 400 });
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
     let result;
     try {
         result = await mg.messages.create(process.env.MAILGUN_DOMAIN!, {
-            from:    `CRM User <${process.env.PROTO_USER_EMAIL}>`,
+            from:    senderEmail,
             to:      [to],
             subject,
             html:    body,
@@ -53,7 +54,7 @@ export async function POST(req: NextRequest) {
     await supabase.from('email_messages').insert({
         thread_id:    finalThreadId,
         direction:    'outbound',
-        from_address: process.env.PROTO_USER_EMAIL,
+        from_address: senderEmail,
         to_address:   to,
         subject,
         body_html:    body,
