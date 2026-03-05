@@ -23,7 +23,7 @@ export default function ReplyForm({ threadId, replyTo, subject, fromEmail, }: {
         const res = await fetch('/api/emails/send', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ to, subject: subj, body, threadId, fromEmail }),
+            body:    JSON.stringify({ to, subject: subj, body, threadId }),
         });
 
         if (!res.ok) {

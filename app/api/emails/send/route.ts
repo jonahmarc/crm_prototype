@@ -1,12 +1,21 @@
 // app/api/emails/send/route.ts
 import Mailgun from 'mailgun.js';
 import FormData from 'form-data';
-import { createServerClient } from '@/lib/supabase-server';
+import { createServerClient, createSessionClient } from '@/lib/supabase-server';
 import { NextRequest } from 'next/server';
 
 export async function POST(req: NextRequest) {
-    const { to, subject, body, threadId, fromEmail } = await req.json()
-    const senderEmail = fromEmail ?? process.env.PROTO_USER_EMAIL;
+    // Verify the session — Route Handlers must check this explicitly.
+    // Middleware alone does not protect API routes from direct curl calls.
+    const sessionSupabase = await createSessionClient();
+    const { data: { user } } = await sessionSupabase.auth.getUser();
+
+    if (!user) {
+        return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { to, subject, body, threadId } = await req.json();
+    const senderEmail = user.email!;
 
     if (!to || !subject || !body) {
         return Response.json({ error: 'to, subject, and body are required' }, { status: 400 });

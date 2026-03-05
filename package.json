@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
-    "@supabase/supabase-js": "^2.97.0",
+    "@supabase/supabase-js": "^2.98.0",
     "form-data": "^4.0.5",
     "mailgun.js": "^12.7.0",
     "mailparser": "^3.9.3",
